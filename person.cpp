@@ -1,10 +1,10 @@
 #include "person.h"
 
 Person::Person(int cardNo, bool act, string fName, string lName) {
-    cardNo = cardID;
-    act = active;
-    fName = firstName;
-    lName = lastName;
+    cardID = cardNo;
+    active = act;
+    firstName = fName;
+    lastName = lName; 
 }
 
 string Person::getFirstName() {
