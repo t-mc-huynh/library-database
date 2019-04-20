@@ -48,7 +48,6 @@ int main()
         {
             case 1:
                 // Book checkout
-                // have to check status of account - active or inactive
                 bookCheckout(books, cardholders);
                 break;
 
@@ -60,7 +59,6 @@ int main()
             case 3:
                 // View all available books
                 printBooks(books);
-                //readBooks(books);
                 break;
 
             case 4:
@@ -70,25 +68,23 @@ int main()
 
             case 5:
                 // View outstanding rentals for a cardholder
+                // needs fixing
                 outstandingRentals(books, cardholders);
                 break;
 
             case 6:
                 // Open new library card
-                // have to check if person exists in system
-                // active or inactive
                 lastID = openCard(cardholders, lastID++);
                 break;
 
             case 7:
                 // Close library card
-                // set active status to inactive
                 closeCard(cardholders);
                 break;
 
             case 8:
                 // Must update records in files here before exiting the program
-                // write into files
+                // needs fixing
                 updatePersonsFile(cardholders);
                 updateRentalsFile(books);
                 deletePointers(cardholders, books);
@@ -183,8 +179,6 @@ int readPersons(vector<Person *> &myCardholders)
         Person * aPerson;
         aPerson = new Person(cardID, active, firstName, lastName);
         myCardholders.push_back(aPerson);
-
-        cout << endl;
     }
     inFile.close();
 
@@ -224,6 +218,7 @@ void readRentals(vector<Book *> & myBooks, vector<Person *> myCardholders) {
                         if (myBooks.at(i)->getPersonPtr()->isActive() == false) 
                         {
                             myBooks.at(i)->getPersonPtr()->setActive(true);
+                            cout << myBooks.at(i)->getPersonPtr()->isActive() << "\t";
                         }
 
                         //cout << "Book ID: " << myBooks.at(i)->getId() << endl;
@@ -313,8 +308,9 @@ void returnBook(vector<Book *> myBooks, vector<Person *> myCardholders) {
 }
 
 int openCard(vector<Person *> & myCardholders, int nextID) {
-    // have to check if person has an account
+    // have to check if person exists in system
     // have to check if account is active or inactive
+
     string fName, lName, fullName;
 
     cin.ignore();
@@ -329,13 +325,21 @@ int openCard(vector<Person *> & myCardholders, int nextID) {
         if ((myCardholders.at(i)->getFirstName() + " " + myCardholders.at(i)->getLastName() == fullName))
         {
             // already exists an account
-            myCardholders.at(i)->setActive(true);
+            cout << "An account for " << myCardholders.at(i)->getFirstName() << " " << myCardholders.at(i)->getLastName() << " already exists." << endl;
+            cout << "The account is now active." << endl;
+            if (myCardholders.at(i)->isActive() == false)
+            {
+                myCardholders.at(i)->setActive(true);
+            }
         }
         else
         {
+            // creates a new account
             Person * newPerson;
             newPerson = new Person(nextID, true, fName, lName);
             myCardholders.push_back(newPerson);
+
+            cout << "An account has been created for " << myCardholders.at(i)->getFirstName() << " " << myCardholders.at(i)->getLastName() << endl;
         }
     }
     return nextID;
@@ -353,6 +357,12 @@ int bookCheckout(vector<Book *> myBooks, vector<Person *> myCardholders)
         if (cardID == myCardholders.at(i)->getId())
         {
             found = true;
+            // have to check status of account - active or inactive
+            if (myCardholders.at(i)->isActive() == false)
+            {
+                cout << "ERROR! Your account is not currently active." << endl;
+                return 0;
+            }
             cout << "Cardholder: " << myCardholders.at(i)->getFirstName();
             cout << " " << myCardholders.at(i)->getLastName() << endl;
         }
@@ -424,9 +434,10 @@ void outstandingRentals(vector<Book *> &myBooks, vector<Person *> myCardholders)
     for (int i = 0; i < myBooks.size(); i++)
     {
         // the card ID exists
-        if (cardID == myBooks.at(i)->getId())
+        if (cardID == myBooks.at(i)->getPersonPtr()->getId())
         {
             // checks if the person is active
+            //cout << myBooks.at(i)->getPersonPtr()->isActive() << "\t";
             if (myBooks.at(i)->getPersonPtr()->isActive() == true)
             {
                 // if the card ID matches the ID the person pointer points to
@@ -454,6 +465,7 @@ void closeCard(vector<Person *> myCardholders)
 
     for (int i = 0; i < myCardholders.size(); i++)
     {
+        // finds the card ID
         if (cardID == myCardholders.at(i)->getId())
         {
             found = true;
@@ -464,14 +476,20 @@ void closeCard(vector<Person *> myCardholders)
             {
                 if (myCardholders.at(i)->isActive() == false)
                 {
+                    // already inactive
                     cout << "Cardholder: " << myCardholders.at(i)->getFirstName() << " " << myCardholders.at(i)->getLastName() << endl;
                     cout << "Card ID is already inactive" << endl;
                 }
                 else
                 {
+                    // set active status to inactive
                     myCardholders.at(i)->setActive(false);
                     cout << "Card ID Deactivated" << endl;
                 }
+            }
+            else
+            {
+                cout << "Card cancellation aborted." << endl;
             }
         }
     }
