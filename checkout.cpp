@@ -18,8 +18,8 @@ void returnBook(vector<Book *> myBooks, vector<Person *> myCardholders);
 int openCard(vector<Person *> &myCardholders, int nextID);
 void closeCard(vector<Person *> myCardholders);
 int bookCheckout(vector<Book *> myBooks, vector<Person *> myCardholders);
+void outstandingRentalsForPerson(vector<Book *> &myBooks, vector<Person *> $myCardholders);
 void outstandingRentals(vector<Book *> &myBooks, vector<Person *> myCardholders);
-void allOutstandingRentals(vector<Book *> &myBooks, vector<Person *> myCardholders);
 void closeCard(vector<Person *> myCardholders);
 void updatePersonsFile(vector<Person *> myCardholders);
 void updateRentalsFile(vector<Book *> myBooks);
@@ -63,13 +63,13 @@ int main()
 
             case 4:
                 // View all outstanding rentals
-                allOutstandingRentals(books, cardholders);
+                outstandingRentals(books, cardholders);
                 break;
 
             case 5:
                 // View outstanding rentals for a cardholder
                 // needs fixing
-                outstandingRentals(books, cardholders);
+                outstandingRentalsForPerson(books, cardholders);
                 break;
 
             case 6:
@@ -112,7 +112,6 @@ void printMenu() {
     cout << "Please enter a choice: ";
 }
 
-/* You are not obligated to use these function declarations - they're just given as examples */
 void readBooks(vector<Book *> & myBooks) {
     fstream inFile;
     inFile.open("books.txt");
@@ -123,11 +122,14 @@ void readBooks(vector<Book *> & myBooks) {
 
     while(!inFile.eof()) {
         inFile >> bookID;
+        // gets the rest of the ID line
         getline(inFile, temp);
         getline(inFile, title);
         getline(inFile, author);
         getline(inFile, category);
+        // gets the line separating book entries
         getline(inFile, temp);
+
         Book * aBook;
         aBook = new Book(bookID, title, author, category);
         myBooks.push_back(aBook);
@@ -230,7 +232,7 @@ void readRentals(vector<Book *> & myBooks, vector<Person *> myCardholders) {
     }
 }
 
-void allOutstandingRentals(vector<Book *> &myBooks, vector<Person *> myCardholders)
+void outstandingRentals(vector<Book *> &myBooks, vector<Person *> myCardholders)
 {
     fstream inFile;
     inFile.open("rentals.txt");
@@ -423,7 +425,7 @@ int bookCheckout(vector<Book *> myBooks, vector<Person *> myCardholders)
     return 0;
 }
 
-void outstandingRentals(vector<Book *> &myBooks, vector<Person *> myCardholders)
+void outstandingRentalsForPerson(vector<Book *> &myBooks, vector<Person *> myCardholders)
 {
     int cardID;
 
@@ -434,20 +436,21 @@ void outstandingRentals(vector<Book *> &myBooks, vector<Person *> myCardholders)
     for (int i = 0; i < myBooks.size(); i++)
     {
         // the card ID exists
-        if (cardID == myBooks.at(i)->getPersonPtr()->getId())
+        if (myBooks.at(i)->getPersonPtr() != NULL)
         {
             // checks if the person is active
             //cout << myBooks.at(i)->getPersonPtr()->isActive() << "\t";
-            if (myBooks.at(i)->getPersonPtr()->isActive() == true)
+            if (cardID == myBooks.at(i)->getPersonPtr()->getId() && myBooks.at(i)->getPersonPtr()->isActive() == true)
             {
+                
                 // if the card ID matches the ID the person pointer points to
                 // aka the person the book is rented out to
-                
+                    
                 // prints the information of the book
                 cout << "Book ID: " << myBooks.at(i)->getId() << endl;
                 cout << "Title: " << myBooks.at(i)->getTitle() << endl;
                 cout << "Author: " << myBooks.at(i)->getAuthor() <<endl << endl;
-                
+                    
             }
         }
     }
