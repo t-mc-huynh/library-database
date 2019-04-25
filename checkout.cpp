@@ -68,13 +68,13 @@ int main()
 
             case 5:
                 // View outstanding rentals for a cardholder
-                // needs fixing
                 outstandingRentalsForPerson(books, cardholders);
                 break;
 
             case 6:
                 // Open new library card
-                lastID = openCard(cardholders, lastID++);
+                // needs fixing
+                lastID = openCard(cardholders, lastID);
                 break;
 
             case 7:
@@ -87,7 +87,7 @@ int main()
                 // needs fixing
                 updatePersonsFile(cardholders);
                 updateRentalsFile(books);
-                deletePointers(cardholders, books);
+                //deletePointers(cardholders, books);
                 break;
 
             default:
@@ -132,6 +132,8 @@ void readBooks(vector<Book *> & myBooks) {
 
         Book * aBook;
         aBook = new Book(bookID, title, author, category);
+        // by default sets the person pointer to null, meaning not rented out
+        aBook->setPersonPtr(nullptr);
         myBooks.push_back(aBook);
     }
     inFile.close();
@@ -184,7 +186,7 @@ int readPersons(vector<Person *> &myCardholders)
     }
     inFile.close();
 
-    return cardID;
+    return (cardID + 1);
 
     // return last cardholder ID to create new cardholder
 }
@@ -314,6 +316,7 @@ int openCard(vector<Person *> & myCardholders, int nextID) {
     // have to check if account is active or inactive
 
     string fName, lName, fullName;
+    bool found = false;
 
     cin.ignore();
     cout << "Please enter your first name: ";
@@ -324,7 +327,7 @@ int openCard(vector<Person *> & myCardholders, int nextID) {
 
     for (int i = 0; i < myCardholders.size(); i++)
     {
-        if ((myCardholders.at(i)->getFirstName() + " " + myCardholders.at(i)->getLastName() == fullName))
+        if (myCardholders.at(i)->fullName() == fullName)
         {
             // already exists an account
             cout << "An account for " << myCardholders.at(i)->getFirstName() << " " << myCardholders.at(i)->getLastName() << " already exists." << endl;
@@ -333,18 +336,24 @@ int openCard(vector<Person *> & myCardholders, int nextID) {
             {
                 myCardholders.at(i)->setActive(true);
             }
-        }
-        else
-        {
-            // creates a new account
-            Person * newPerson;
-            newPerson = new Person(nextID, true, fName, lName);
-            myCardholders.push_back(newPerson);
-
-            cout << "An account has been created for " << myCardholders.at(i)->getFirstName() << " " << myCardholders.at(i)->getLastName() << endl;
+            found = true;
+            break;
         }
     }
-    return nextID;
+
+    if (found == false)
+    {
+        // creates a new account
+        Person *newPerson;
+        newPerson = new Person(nextID, true, fName, lName);
+        myCardholders.push_back(newPerson);
+
+        cout << "An account has been created for " << fullName << endl;
+        // cout << "Card ID: " << myCardholders.at(i)->getId() << endl;
+        // cout << "Cardholder: " << myCardholders.at(i)->fullName() << endl;
+    }
+
+    return nextID++;
 }
 
 int bookCheckout(vector<Book *> myBooks, vector<Person *> myCardholders)
@@ -367,6 +376,7 @@ int bookCheckout(vector<Book *> myBooks, vector<Person *> myCardholders)
             }
             cout << "Cardholder: " << myCardholders.at(i)->getFirstName();
             cout << " " << myCardholders.at(i)->getLastName() << endl;
+            break;
         }
     }
 
@@ -401,8 +411,8 @@ int bookCheckout(vector<Book *> myBooks, vector<Person *> myCardholders)
                         // set the book to the owner
                         Person * temp = myCardholders.at(j);
                         myBooks.at(i)->setPersonPtr(temp);
-                        // cout << "Card ID: " << myBooks.at(i)->getPersonPtr()->getId() << endl;
-                        // cout << "Book ID: " << myBooks.at(i)->getId() << endl;
+                        cout << "Card ID: " << myBooks.at(i)->getPersonPtr()->getId() << endl;
+                        cout << "Book ID: " << myBooks.at(i)->getId() << endl;
                         return 0;
                     }
                     else
@@ -520,14 +530,17 @@ void updatePersonsFile(vector<Person *> myCardholders)
 void updateRentalsFile(vector<Book *> myBooks)
 {
     fstream oFile;
-    oFile.open("books.txt");
+    oFile.open("rentals.txt");
 
     for (int i = 0; i < myBooks.size(); i++)
     {
         // if the person has books checked out
-        if (myBooks.at(i)->getPersonPtr()->isActive() == true) 
+        if (myBooks.at(i)->getPersonPtr() != NULL)
         {
-            oFile << myBooks.at(i)->getId() << " " << myBooks.at(i)->getPersonPtr()->getId() << endl;
+            if (myBooks.at(i)->getPersonPtr()->isActive() == true) 
+            {
+                oFile << myBooks.at(i)->getId() << " " << myBooks.at(i)->getPersonPtr()->getId() << endl;
+            }
         }
     }
 
