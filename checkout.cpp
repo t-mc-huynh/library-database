@@ -319,10 +319,11 @@ int openCard(vector<Person *> & myCardholders, int nextID) {
     bool found = false;
 
     cin.ignore();
+    // Don't want to use getline in case user inputs first and last name at the same time - breaks system
     cout << "Please enter your first name: ";
-    getline(cin, fName);
+    cin >> fName;
     cout << "Please enter your last name: ";
-    getline(cin, lName);
+    cin >> lName;
     fullName = fName + " " + lName;
 
     for (int i = 0; i < myCardholders.size(); i++)
@@ -411,8 +412,8 @@ int bookCheckout(vector<Book *> myBooks, vector<Person *> myCardholders)
                         // set the book to the owner
                         Person * temp = myCardholders.at(j);
                         myBooks.at(i)->setPersonPtr(temp);
-                        cout << "Card ID: " << myBooks.at(i)->getPersonPtr()->getId() << endl;
-                        cout << "Book ID: " << myBooks.at(i)->getId() << endl;
+                        // cout << "Card ID: " << myBooks.at(i)->getPersonPtr()->getId() << endl;
+                        // cout << "Book ID: " << myBooks.at(i)->getId() << endl;
                         return 0;
                     }
                     else
@@ -441,6 +442,8 @@ void outstandingRentalsForPerson(vector<Book *> &myBooks, vector<Person *> myCar
 
     cout << "Please enter your card ID: ";
     cin >> cardID;
+
+    cout << endl;
 
     // goes through the book vector to look for the card ID
     for (int i = 0; i < myBooks.size(); i++)
